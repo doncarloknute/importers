@@ -1,0 +1,3 @@
+put image files into
+assets2.infochimps.org/static/images/ds/datamob-[original name]
+then can put the images into the descriptions using textile formatting
