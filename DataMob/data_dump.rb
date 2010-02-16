@@ -50,8 +50,22 @@ class DatamobListing
   
 end
 
-DatamobTag.auto_migrate!
-DatamobTagging.auto_migrate!
-DatamobListing.auto_migrate!
+# DatamobTag.auto_migrate!
+# DatamobTagging.auto_migrate!
+# DatamobListing.auto_migrate!
 
-#DataMapper.auto_migrate!
+# DataMapper.auto_migrate!
+
+# Need to load in data here first if not loaded already.  See bulk_load.sql
+
+DatamobListing.all.each do |listing|
+  taggings = DatamobTagging.all(:dataset_id => listing.id)
+  listing.datamob_taggings = taggings
+  listing.save
+end
+
+DatamobTag.all.each do |tag|
+  taggings = DatamobTagging.all(:tag_id => tag.id)
+  tag.datamob_taggings = taggings
+  tag.save
+end
