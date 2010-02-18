@@ -7,10 +7,9 @@ yaml_path = '/Users/doncarlo/data/datamob_dump/yaml/'
 
 def textile_helper text
   textile_text = text.to_s
-  textile_text.gsub!(/\<[Pp]\>/,'p. ')
+  textile_text.gsub!(/\<\/?[Pp]\>/,'')
   textile_text.gsub!(/(\<[Bb][Rr]\/?\>)+/,'
 ')
-  textile_text.gsub!(/\<\/[Pp]\>/,'')
   textile_text.gsub!(/\<\/?i\>/,'_')
   textile_text.gsub!(/\<\/?strong\>/,'*')
   textile_text.gsub!(/\<\/?b\>/,'*')
