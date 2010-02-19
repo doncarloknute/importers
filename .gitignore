@@ -2,3 +2,4 @@ ripd
 *.tmproj
 .DS_Store
 work
+geoip_ripd
