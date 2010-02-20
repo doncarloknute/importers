@@ -1,21 +1,21 @@
 
-DROP TABLE IF EXISTS `locations`;
-CREATE          TABLE  `locations` (
-  `id`            int(11)          NOT NULL,
-  `country_code`  varchar(50)     CHARACTER SET `ascii` COLLATE `ascii_general_ci` default NULL,
-  `region_code`   varchar(50)     CHARACTER SET `ascii` COLLATE `ascii_general_ci` default NULL,
-  `city`          varchar(50)     CHARACTER SET `ascii` COLLATE `ascii_general_ci` default NULL,
-  `postal_code`   varchar(50)     CHARACTER SET `ascii` COLLATE `ascii_general_ci` default NULL,
-  `latitude`      float           default NULL,
-  `longitude`     float           default NULL,
-  `metro_code`    int(11)         default NULL,
-  `area_code`     int(11)         default NULL,
-  PRIMARY KEY  (`id`),
-  KEY (`country_code`),
-  KEY (`region_code`),
-  KEY (`city`)
-) ENGINE=MYISAM DEFAULT CHARSET=utf8
-;
+-- DROP TABLE IF EXISTS `locations`;
+-- CREATE          TABLE  `locations` (
+--   `id`            int(11)          NOT NULL,
+--   `country_code`  varchar(50)     CHARACTER SET `ascii` COLLATE `ascii_general_ci` default NULL,
+--   `region_code`   varchar(50)     CHARACTER SET `ascii` COLLATE `ascii_general_ci` default NULL,
+--   `city`          varchar(50)     CHARACTER SET `ascii` COLLATE `ascii_general_ci` default NULL,
+--   `postal_code`   varchar(50)     CHARACTER SET `ascii` COLLATE `ascii_general_ci` default NULL,
+--   `latitude`      float           default NULL,
+--   `longitude`     float           default NULL,
+--   `metro_code`    int(11)         default NULL,
+--   `area_code`     int(11)         default NULL,
+--   PRIMARY KEY  (`id`),
+--   KEY (`country_code`),
+--   KEY (`region_code`),
+--   KEY (`city`)
+-- ) ENGINE=MYISAM DEFAULT CHARSET=utf8
+-- ;
 
 TRUNCATE TABLE locations;
 ALTER TABLE locations DISABLE KEYS;

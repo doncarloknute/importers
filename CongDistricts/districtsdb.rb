@@ -13,7 +13,7 @@ DB_URI = Settings.db_uri + "/" + Settings.db_name
 p DB_URI
 DataMapper.setup(:default, DB_URI)
 
-class District
+class Districting
   include DataMapper::Resource
   
   property :district_id, Integer, :key => true
@@ -22,6 +22,9 @@ class District
   property :zip4max,     Integer
   property :state,       String, :length => 2
   property :district,    Integer
+  
+  has n, :locations
+  has n, :endorsements, :through => :locations
   
 end
 
@@ -37,6 +40,9 @@ class Location
   property :longitude,    Float
   property :metro_code,   Integer
   property :area_code,    Integer
+  
+  belongs_to :endorsement
+  belongs_to :districting
   
 end
 
@@ -58,6 +64,23 @@ class Endorsement
   property :st,        String, :key => true  
   property :city,      String
   property :paper,     String
-  property :pop,       Integer  
+  property :pop,       Integer 
+  
+  has n, :locations
+  has n, :districtings, :through => :locations
   
 end
+
+# Location.auto_migrate!
+
+# Endorsement.all.each do |newspaper|
+#   city_locations = Location.all(:region_code => newspaper.st, :city => newspaper.city)
+#   newspaper.locations = city_locations
+#   newspaper.save
+# end
+# 
+# Districting.all.each do |dist|
+#   city_locations = Location.all(:region_code => dist.state, :postal_code => dist.zip5)
+#   dist.locations = city_locations
+#   dist.save
+# end
