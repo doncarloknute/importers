@@ -3,3 +3,5 @@ ripd
 .DS_Store
 work
 geoip_ripd
+*.tsv
+Delicious/del_data
