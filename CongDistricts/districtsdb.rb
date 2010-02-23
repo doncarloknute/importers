@@ -9,7 +9,7 @@ Settings.define :db_uri,  :description => "Base URI for database -- eg mysql://U
 Settings.define :db_name, :description => "Database name to use", :required => true
 Settings.resolve!
 
-DataMapper::Logger.new(STDOUT, 0)
+# DataMapper::Logger.new(STDOUT, 0)
 DB_URI = Settings.db_uri + "/" + Settings.db_name
 p DB_URI
 DataMapper.setup(:default, DB_URI)
@@ -18,14 +18,14 @@ class Districting
   include DataMapper::Resource
   
   property :id,          Serial
-  property :postal_code, Integer, :index => :postal_code
+  property :zip5, Integer, :index => :zip5
   property :zip4min,     Integer, :index => :zip4min 
   property :zip4max,     Integer, :index => :zip4max
   property :state,       String, :length => 2, :index => :state
   property :district_id, Integer, :index => :district_id
   
-  has n, :locations, :child_key => [:postal_code], :parent_key => [:postal_code]
-  has n, :newspapers, :through => :locations, :child_key => [:postal_code], :parent_key => [:postal_code]
+  has n, :locations, :child_key => [:zip5], :parent_key => [:zip5]
+  # has n, :newspapers, :through => :locations, :child_key => [:zip5], :parent_key => [:zip5]
   
 end
 
@@ -37,13 +37,14 @@ class Location
   property :city,         String, :index => :city_region
   property :region_code,  String, :index => :city_region
   property :postal_code,  String, :index => :postal_code
+  property :zip5,         Integer, :index => :postal_code
   property :latitude,     Float
   property :longitude,    Float
   property :metro_code,   Integer
   property :area_code,    Integer
   
   has n, :newspapers, :child_key => [:city,:region_code], :parent_key => [:city,:region_code]
-  has n, :districtings, :child_key => [:postal_code], :parent_key => [:postal_code]
+  has n, :districtings, :child_key => [:zip5], :parent_key => [:zip5]
   
 end
 
@@ -71,6 +72,15 @@ class Newspaper
   has n, :locations, :child_key => [:city,:region_code], :parent_key => [:city,:region_code]
   
 end
+
+newspapers = File.open('newspaper_districts.tsv','w')
+
+Newspaper.all.map do |paper|  
+  pd = paper.locations.districtings
+  # pd.length
+  newspapers << [paper.id, paper.city, paper.region_code, pd.map(&:zip5).uniq.join(","), pd.map(&:district_id).uniq.join(",") ].join("\t") + "\n"
+end
+
 
 # Districting.auto_migrate!
 # Location.auto_migrate!
