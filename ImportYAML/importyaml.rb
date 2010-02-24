@@ -187,17 +187,50 @@ class DatasetYAML
   end
   
   def to_yaml
+    if @title == nil || @description == nil || @owner == nil
+      warn "A dataset needs a title, description, and owner."
+    end
+    if !(@main_link || @payloads)
+      warn "A dataset needs either a main link or a payload."
+    end
     @@constructed_yaml = [{'dataset'=>{
       'title'=>@title,
-      'subtitle'=>@subtitle,
       'description'=>@description,
       'owner'=>@owner,
-      'tags'=>@tags,
-      'categories'=>@categories,
-      'collection'=>@collection,
-      'sources'=>@sources,
-      'payloads'=>@payloads
       }}]
+    if @tags.is_a?(String)
+      @@constructed_yaml[0]['dataset']['tags'] = @tags.split(", ")
+    end
+    if @tags.is_a?(Array)
+      @@constructed_yaml[0]['dataset']['tags'] = @tags
+    end
+    if @categories.is_a?(String)
+      @@constructed_yaml[0]['dataset']['categories'] = @categories.split(", ")
+    end
+    if @categories.is_a?(Array)
+      @@constructed_yaml[0]['dataset']['categories'] = @categories
+    end
+    if @sources.is_a?(String)
+      @@constructed_yaml[0]['dataset']['sources'] = @sources.split(", ")
+    end
+    if @sources.is_a?(Array)
+      @@constructed_yaml[0]['dataset']['sources'] = @sources
+    end
+    if @sources.is_a?(Hash)
+      @@constructed_yaml[0]['dataset']['sources'] = [@sources]
+    end
+    if @payloads.is_a?(PayloadYAML)
+      @@constructed_yaml[0]['dataset']['payloads'] = @payloads.to_a
+    end
+    if @payloads.is_a?(Array)
+      @payloads.each do |payload|
+        @@constructed_yaml[0]['dataset']['payloads'] = []
+        @@constructed_yaml[0]['dataset']['payloads'] += payload.to_a if payload.is_a?(PayloadYAML)
+      end
+    end 
+    @@constructed_yaml[0]['dataset']['subtitle'] = @subtitle if @subtitle != nil
+    @@constructed_yaml[0]['dataset']['collection'] = @collection if @collection != nil  
+    @@constructed_yaml[0]['dataset']['main_link'] = @main_link if @main_link != nil  
     @@constructed_yaml.to_yaml
   end    
   
