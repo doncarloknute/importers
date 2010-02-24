@@ -28,3 +28,11 @@ LOAD DATA INFILE '/Users/doncarlo//data/newspaperendorse/endorsements.tsv'
    SET country_code='US'
 ;
 ALTER TABLE endorsements ENABLE KEYS;
+
+ALTER TABLE refdesknewspapers DISABLE KEYS;
+LOAD DATA INFILE '/data/work/cong_dist/refdesk_newspapers.tsv' 
+   INTO TABLE refdesknewspapers
+   FIELDS TERMINATED BY "\t"
+   (url,paper,city,region_code)
+   SET country_code='us';
+ALTER TABLE refdesknewspapers ENABLE KEYS

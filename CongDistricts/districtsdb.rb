@@ -73,15 +73,37 @@ class Newspaper
   
 end
 
-newspapers = File.open('newspaper_districts.tsv','w')
+class Refdesknewspaper
+  include DataMapper::Resource
+  
+  property :id,           Serial
+  property :city,         String, :index => :city_region
+  property :region_code,  String, :index => :city_region, :index => :region  
+  property :country_code, String, :index => :country_code
+  property :paper,        String, :index => :paper
+  property :url,          String, :length => 255
+  
+  has n, :locations, :child_key => [:city,:region_code], :parent_key => [:city,:region_code]
+  
+end
 
-Newspaper.all.map do |paper|  
-  pd = paper.locations.districtings
-  # pd.length
-  newspapers << [paper.id, paper.city, paper.region_code, pd.map(&:zip5).uniq.join(","), pd.map(&:district_id).uniq.join(",") ].join("\t") + "\n"
+# newspapers = File.open('newspaper_districts.tsv','w')
+
+# Newspaper.all.map do |paper|  
+#   pd = paper.locations.districtings
+#   # pd.length
+#   newspapers << [paper.id, paper.city, paper.region_code, pd.map(&:zip5).uniq.join(","), pd.map(&:district_id).uniq.join(",") ].join("\t") + "\n"
+# end
+
+newspapers = File.open('refdesk_newspaper_dist.tsv','w')
+
+Refdesknewspaper.all.map do |paper|  
+ pd = paper.locations.districtings
+ newspapers << [paper.paper, paper.city, paper.region_code, pd.map(&:zip5).uniq.join(","), pd.map(&:district_id).uniq.join(",") ].join("\t") + "\n"
 end
 
 
 # Districting.auto_migrate!
 # Location.auto_migrate!
 # Newspaper.auto_migrate!
+# Refdesknewspaper.auto_migrate!
