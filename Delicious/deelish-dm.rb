@@ -24,6 +24,7 @@ class Bookmark
   property :tags,        Text
   property :user,        String, :index => :user
   property :timestamp,   DateTime, :index => :timestamp
+  property :uploaded_on, DateTime, :index => :uploaded_on
   
   has 1, :user, :child_key => [:name], :parent_key => [:user]
   
