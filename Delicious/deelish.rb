@@ -2,20 +2,31 @@
 require 'rubygems'
 require '../ImportYAML/importyaml'
 require 'deelish-dm'
-require 'open-uri'
+require 'restclient'
+require 'json'
+
+def delicious_usertag user,tag
+  %Q{http://feeds.delicious.com/v2/json/#{user}/#{tag}}
+end
 
 del_user = User.get(2)
 
 del_user.tags.split(", ").each do |tag|
-  open('http://feeds.delicious.com/v2/json/' + del_user.name + '/' + tag + '?count=100').each do |line|
-    line.split("},{").each do |link|
-      link.gsub!(/\\\//,'/')
-      link.gsub!(/\\\"/,'')
-      if link =~ /\"u\"\:\"([^\"]+)\"\,\"d\"\:\"([^\"]+)\"\,\"t\"\:\[([^\]]+)\]\,\"dt\"\:\"([^\"]+)\"\,\"n\"\:\"([^\"]+)\"\,\"a\"\:\"([^\"]+)\"/
-        url, title, tags, timestamp, description, username = [$1, $2, $3, $4, $5, $6]
-        puts [url, title, tags.delete('"'), timestamp, description, username].join("\t")
-#        bmark = Bookmark.new(:title => title, :description => description, :url => url, :tags => tags.delete('"'), :user => username, :timestamp => timestamp)
-      end
-    end
+  del_url = delicious_usertag(del_user.name,tag)
+  begin
+    del_json =  RestClient.get(del_url)
+  rescue RuntimeError => e
+    warn "Dataset #{dataset_id} error fetching #{del_url}: #{e}"
+    sleep 5
+    next
+  end
+  del_taggings = JSON.load(del_json)
+  next if del_taggings.blank?
+  del_taggings.each do |del_hsh|
+    url, timestamp, username, title, description, tags = del_hsh.values_at("u", "dt", "a", "d", "n", "t")
+    tags = tags.join(",")
+    puts [url, title, tags, timestamp, description, username].join("\t")
+    # bmark = Bookmark.create(:title => title, :description => description, :url => url, :tags => tags, :user => username, :timestamp => timestamp)
+    # bmark.save
   end
 end
