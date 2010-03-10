@@ -25,5 +25,6 @@ class UkDataset
   property :description, Text
   property :extras, Text
   property :revision_id, String, :key => true
+  property :uploaded, DateTime
   
 end
