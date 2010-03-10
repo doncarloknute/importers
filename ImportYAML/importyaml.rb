@@ -132,7 +132,8 @@ class PayloadYAML
                 :protected,
                 :license,
                 :records_count,
-                :upload_files
+                :upload_files,
+                :fields
                 
   def initialize *args
     return if args.empty?
@@ -142,6 +143,7 @@ class PayloadYAML
   def to_a
     if @title == nil || @description == nil || @fmt == nil || @license == nil || @owner == nil
       warn "A payload needs a title, description, owner, format, and license."
+      return
     end
     @@payload_arry = [{'title'=>@title,
       'description'=>@description,
@@ -157,11 +159,13 @@ class PayloadYAML
     @@payload_arry[0]['protected'] = @protected if @protected != nil
     @@payload_arry[0]['records_count'] = @records_count if @records_count != nil
     @@payload_arry[0]['price'] = @price if @price != nil
+    @@payload_arry[0]['schema_fields'] = @fields if @fields != nil
     @@payload_arry
   end
   
   def to_yaml
     @@payload_yaml = [{'payloads'=>self.to_a}]
+    return unless @@payload_yaml[0]['payloads'] != nil
     @@payload_yaml.to_yaml
   end
   
@@ -189,9 +193,11 @@ class DatasetYAML
   def to_yaml
     if @title == nil || @description == nil || @owner == nil
       warn "A dataset needs a title, description, and owner."
+      return
     end
     if !(@main_link || @payloads)
       warn "A dataset needs either a main link or a payload."
+      return
     end
     @@constructed_yaml = [{'dataset'=>{
       'title'=>@title,
@@ -230,7 +236,8 @@ class DatasetYAML
     end 
     @@constructed_yaml[0]['dataset']['subtitle'] = @subtitle if @subtitle != nil
     @@constructed_yaml[0]['dataset']['collection'] = @collection if @collection != nil  
-    @@constructed_yaml[0]['dataset']['main_link'] = @main_link if @main_link != nil  
+    @@constructed_yaml[0]['dataset']['main_link'] = @main_link if @main_link != nil 
+    @@constructed_yaml[0]['dataset']['protected'] = @protected if @main_link != nil  
     @@constructed_yaml.to_yaml
   end    
   
