@@ -18,26 +18,26 @@ class Bookmark
   include DataMapper::Resource
   
   property :id,          Serial
-  property :title,       String
+  property :title,       String, :length => 255
   property :description, Text
   property :url,         String, :length => 255
+  property :url_hash,    String, :length => 32
   property :tags,        Text
-  property :user,        String, :index => :user
+  property :user_id,     String, :index => :user_id
   property :timestamp,   DateTime, :index => :timestamp
   property :uploaded_on, DateTime, :index => :uploaded_on
   
-  has 1, :user, :child_key => [:name], :parent_key => [:user]
+  has 1, :user, :child_key => [:id], :parent_key => [:user_id]
   
 end
 
 class User
   include DataMapper::Resource
 
-  property :id,   Serial
-  property :name, String
+  property :id, String, :key => true
   property :tags, Text
   
-  has n, :bookmarks, :child_key => [:user], :parent_key => [:name]
+  has n, :bookmarks, :child_key => [:user_id], :parent_key => [:id]
 
 end
 
