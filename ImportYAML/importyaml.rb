@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 require 'rubygems'
 require 'yaml'
 
@@ -123,6 +122,171 @@ require 'yaml'
 #
 #       This is some description
 
+#
+# Each field is a little hash.  When put in an array it will make a nice list in the YAML file.
+#
+
+class FieldYAML
+  
+  attr_accessor :title,
+                :description,
+                :datatype,
+                :unit
+
+  def initialize *args
+    return if args.empty?
+    args[0].each {|key,value| instance_variable_set("@#{key}", value) }
+  end
+  
+  def to_a
+    if @title == nil
+      warn "Each field needs a title."
+      return
+    end
+    @@title_arry = [{'title'=>@title}]
+    @@title_arry[0]['description'] = @description if @description != nil
+    @@title_arry[0]['datatype'] = @datatype if @datatype != nil
+    @@title_arry[0]['unit'] = @unit if @unit != nil
+    @@title_arry
+  end
+  
+end
+
+#
+#
+#
+
+class SnippetYAML
+  
+  attr_accessor :columns,
+                :data
+                
+  def initialize *args
+    return if args.empty?
+    args[0].each {|key,value| instance_variable_set("@#{key}", value) }
+  end
+  
+  def to_a
+    @@snippet_arry = [{'columns'=>@columns, 'data'=>@data}]
+    @@snippet_arry
+  end
+  
+end
+                
+#
+# Each dataset is a hash in an array.  Multiple DatasetYAML.to_a can be added together to put multiple listings in one file.
+#  
+
+class DatasetYAML
+  
+  attr_accessor :title, 
+                :subtitle,
+                :main_link, 
+                :description, 
+                :owner,
+                :protected,
+                :tags, 
+                :categories,
+                :collection, 
+                :sources,
+                :upload_files,
+                :fields,
+                :price,
+                :records_count,
+                :fmt,
+                :snippet
+  
+  def initialize *args
+    return if args.empty?
+    args[0].each {|key,value| instance_variable_set("@#{key}", value) }
+  end
+  
+  def to_a
+    if @title == nil || @description == nil || @owner == nil
+      warn "A dataset needs a title, description, and owner."
+      return
+    end
+    if !(@main_link || @upload_files)
+      warn "A dataset needs either a main link or a payload (files to upload)."
+      return
+    end
+    @@dataset_arry = [{'dataset'=>{
+      'title'=>@title,
+      'description'=>@description,
+      'owner'=>@owner,
+      }}]
+    if @tags.is_a?(String)
+      @@dataset_arry[0]['dataset']['tags'] = @tags.gsub(/\,\s/,",").gsub(/\s/,"-").split(",")
+    end
+    if @tags.is_a?(Array)
+      @@dataset_arry[0]['dataset']['tags'] = @tags
+    end
+    if @categories.is_a?(String)
+      @@dataset_arry[0]['dataset']['categories'] = @categories.gsub(/\,\s/,",").split(",")
+    end
+    if @categories.is_a?(Array)
+      @@dataset_arry[0]['dataset']['categories'] = @categories
+    end
+    if @sources.is_a?(String)
+      @@dataset_arry[0]['dataset']['sources'] = @sources.gsub(/\,\s/,",").gsub(/\s/,"-").split(",")
+    end
+    if @sources.is_a?(Array)
+      @@dataset_arry[0]['dataset']['sources'] = @sources
+    end
+    if @sources.is_a?(Hash)
+      @@dataset_arry[0]['dataset']['sources'] = [@sources]
+    end
+    if @upload_files.is_a?(String)
+      @@dataset_arry[0]['dataset']['files_for_upload'] = @upload_files.gsub(/\,\s/,",").split(",")
+    end
+    if @upload_files.is_a?(Array)
+      @@dataset_arry[0]['dataset']['files_for_upload'] = @upload_files
+    end
+    if @fields.is_a?(FieldYAML)
+      @@dataset_arry[0]['dataset']['fields'] = @fields.to_a
+    end
+    if @fields.is_a?(Array)
+      @@dataset_arry[0]['dataset']['fields'] = []
+      @fields.each do |field|
+        @@dataset_arry[0]['dataset']['fields'] += field.to_a if field.is_a?(FieldYAML)
+      end
+    end
+    if @snippet.is_a?(SnippetYAML)
+      @@dataset_arry[0]['dataset']['snippets'] = @snippet.to_a
+    end
+#
+# Payloads are outdated now with the early March 2010 site update
+#
+#    if @payloads.is_a?(PayloadYAML)
+#      @@dataset_arry[0]['dataset']['payloads'] = @payloads.to_a
+#    end
+#    if @payloads.is_a?(Array)
+#      @@dataset_arry[0]['dataset']['payloads'] = []
+#      @payloads.each do |payload|
+#        @@dataset_arry[0]['dataset']['payloads'] += payload.to_a if payload.is_a?(PayloadYAML)
+#      end
+#    end 
+    @@dataset_arry[0]['dataset']['subtitle'] = @subtitle if @subtitle != nil
+    @@dataset_arry[0]['dataset']['collection'] = @collection if @collection != nil  
+    @@dataset_arry[0]['dataset']['main_link'] = @main_link if @main_link != nil 
+    @@dataset_arry[0]['dataset']['price'] = @price if @price != nil
+    @@dataset_arry[0]['dataset']['license'] = @license if @license != nil
+    @@dataset_arry[0]['dataset']['fmt'] = @fmt if @fmt != nil
+    @@dataset_arry[0]['dataset']['records_count'] = @records_count if @records_count != nil
+    @@dataset_arry[0]['dataset']['protected'] = @protected if @protected != nil  
+    @@dataset_arry    
+  end
+  
+  def to_yaml
+    @@dataset_yaml = self.to_a
+    @@dataset_yaml.to_yaml
+  end    
+  
+end
+
+#
+# Payloads are outdated now with the early March 2010 site update
+#
 class PayloadYAML
   attr_accessor :title,
                 :description,
@@ -151,7 +315,7 @@ class PayloadYAML
       'owner'=>@owner,
       'license'=>@license}]
     if @upload_files.is_a?(String)
-      @@payload_arry[0]['files_for_upload'] = @upload_files.split(", ")
+      @@payload_arry[0]['files_for_upload'] = @upload_files.gsub(/\,\s/,",").split(",")
     end
     if @upload_files.is_a?(Array)
       @@payload_arry[0]['files_for_upload'] = @upload_files
@@ -168,77 +332,5 @@ class PayloadYAML
     return unless @@payload_yaml[0]['payloads'] != nil
     @@payload_yaml.to_yaml
   end
-  
-end
-
-class DatasetYAML
-  
-  attr_accessor :title, 
-                :subtitle,
-                :main_link, 
-                :description, 
-                :owner,
-                :protected,
-                :tags, 
-                :categories,
-                :collection, 
-                :sources,
-                :payloads
-  
-  def initialize *args
-    return if args.empty?
-    args[0].each {|key,value| instance_variable_set("@#{key}", value) }
-  end
-  
-  def to_yaml
-    if @title == nil || @description == nil || @owner == nil
-      warn "A dataset needs a title, description, and owner."
-      return
-    end
-    if !(@main_link || @payloads)
-      warn "A dataset needs either a main link or a payload."
-      return
-    end
-    @@constructed_yaml = [{'dataset'=>{
-      'title'=>@title,
-      'description'=>@description,
-      'owner'=>@owner,
-      }}]
-    if @tags.is_a?(String)
-      @@constructed_yaml[0]['dataset']['tags'] = @tags.split(", ")
-    end
-    if @tags.is_a?(Array)
-      @@constructed_yaml[0]['dataset']['tags'] = @tags
-    end
-    if @categories.is_a?(String)
-      @@constructed_yaml[0]['dataset']['categories'] = @categories.split(", ")
-    end
-    if @categories.is_a?(Array)
-      @@constructed_yaml[0]['dataset']['categories'] = @categories
-    end
-    if @sources.is_a?(String)
-      @@constructed_yaml[0]['dataset']['sources'] = @sources.split(", ")
-    end
-    if @sources.is_a?(Array)
-      @@constructed_yaml[0]['dataset']['sources'] = @sources
-    end
-    if @sources.is_a?(Hash)
-      @@constructed_yaml[0]['dataset']['sources'] = [@sources]
-    end
-    if @payloads.is_a?(PayloadYAML)
-      @@constructed_yaml[0]['dataset']['payloads'] = @payloads.to_a
-    end
-    if @payloads.is_a?(Array)
-      @payloads.each do |payload|
-        @@constructed_yaml[0]['dataset']['payloads'] = []
-        @@constructed_yaml[0]['dataset']['payloads'] += payload.to_a if payload.is_a?(PayloadYAML)
-      end
-    end 
-    @@constructed_yaml[0]['dataset']['subtitle'] = @subtitle if @subtitle != nil
-    @@constructed_yaml[0]['dataset']['collection'] = @collection if @collection != nil  
-    @@constructed_yaml[0]['dataset']['main_link'] = @main_link if @main_link != nil 
-    @@constructed_yaml[0]['dataset']['protected'] = @protected if @main_link != nil  
-    @@constructed_yaml.to_yaml
-  end    
   
 end
