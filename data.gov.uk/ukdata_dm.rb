@@ -2,7 +2,7 @@ require 'dm-core'
 require 'dm-types'
 require 'configliere'
 Settings.use :config_file, :define, :commandline
-Settings.read 'data.gov.uk.yaml'
+Settings.read 'open_data.yaml'
 Settings.define :db_uri,  :description => "Base URI for database -- eg mysql://USERNAME:PASSWORD@localhost:9999", :required => true
 Settings.define :db_name, :description => "Database name to use", :required => true
 Settings.resolve!
