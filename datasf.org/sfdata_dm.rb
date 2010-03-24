@@ -12,8 +12,8 @@ DataMapper.setup(:default, Settings.db_uri+"/"+Settings.db_name)
 class SanfranDataset
   include DataMapper::Resource
   
-  property :id, Integer, :key => true
-  property :title, String
+  property :id, Serial
+  property :title, String, :length => 255
   property :url, String, :length => 255
   property :tags, Text
   property :description, Text
