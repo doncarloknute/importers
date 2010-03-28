@@ -9,7 +9,7 @@ top300 = isohunt.parse ["table.forumline", {:search_terms => ["td.row1", {:term 
 
 ranked_terms = []
 
-(0..3).each{ |i| ranked_terms += top300[i][:search_terms].map{ |term| term = [term[:rank].inner_text, term[:term].inner_text] }}
+(0..3).each{ |i| ranked_terms += top300[i][:search_terms].map{ |term| term = [term[:rank], term[:term]] }}
 
 outfile = File.open(WORK_DIR + "Isohunt_Top300_" + Time.now.strftime("%Y%m%d") + ".tsv","w")
 
