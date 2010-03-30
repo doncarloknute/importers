@@ -194,7 +194,10 @@ class DatasetYAML
                 :price,
                 :records_count,
                 :fmt,
-                :snippet
+                :snippet,
+                :license,
+                :score,
+                :rating
   
   def initialize *args
     return if args.empty?
@@ -228,7 +231,7 @@ class DatasetYAML
       @@dataset_arry[0]['dataset']['categories'] = @categories
     end
     if @sources.is_a?(String)
-      @@dataset_arry[0]['dataset']['sources'] = @sources.gsub(/\,\s/,",").gsub(/\s/,"-").split(",")
+      @@dataset_arry[0]['dataset']['sources'] = @sources.gsub(/\,\s/,",").split(",")
     end
     if @sources.is_a?(Array)
       @@dataset_arry[0]['dataset']['sources'] = @sources
@@ -267,11 +270,13 @@ class DatasetYAML
 #      end
 #    end 
     @@dataset_arry[0]['dataset']['subtitle'] = @subtitle if @subtitle != nil
-    @@dataset_arry[0]['dataset']['collection'] = @collection if @collection != nil  
+    @@dataset_arry[0]['dataset']['collection_title'] = @collection if @collection != nil  
     @@dataset_arry[0]['dataset']['main_link'] = @main_link if @main_link != nil 
     @@dataset_arry[0]['dataset']['price'] = @price if @price != nil
-    @@dataset_arry[0]['dataset']['license'] = @license if @license != nil
+    @@dataset_arry[0]['dataset']['license_title'] = @license if @license != nil
     @@dataset_arry[0]['dataset']['fmt'] = @fmt if @fmt != nil
+    @@dataset_arry[0]['dataset']['cached_score'] = @score if @score != nil
+    @@dataset_arry[0]['dataset']['rating'] = @rating if @rating != nil
     @@dataset_arry[0]['dataset']['records_count'] = @records_count if @records_count != nil
     @@dataset_arry[0]['dataset']['protected'] = @protected if @protected != nil  
     @@dataset_arry    
