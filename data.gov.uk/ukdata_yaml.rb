@@ -4,6 +4,8 @@ require 'rubygems'
 require 'importyaml'
 require 'ukdata_dm'
 
+YAML_DIR = '/Users/doncarlo/ics/yaml_files/data.gov.uk/'
+
 # Make a new collection called Data.gov.uk
 
 collection = [{'collection'=>{'title'=>'Data.gov.uk','description'=>'Data.gov.uk seeks to give a way into the wealth of government data. As highlighted by the Power of Information Taskforce, this means it needs to be:
@@ -28,15 +30,23 @@ all_datasets = []
 # sources = []
 long_title = 0
 no_url = 0
+long_url = 0
 no_tags = 0
+long_tags = 0
 uploaded = 0
 
 fix_listings = File.open("uk_datasets_to_fixup.tsv","w")
 
 UkDataset.all.each do |dataset|
+  taglengthflag = false
   if dataset.url == ""
     no_url += 1
     fix_listings << [dataset.id, "Reason: No URL"].join("\t") + "\n"
+    next
+  end
+  if dataset.url.length > 255
+    long_url += 1
+    fix_listings << [dataset.id, "Reason: Long URL"].join("\t") + "\n"
     next
   end
   if dataset.tags == ""
@@ -44,12 +54,20 @@ UkDataset.all.each do |dataset|
     fix_listings << [dataset.id, "Reason: No tags"].join("\t") + "\n"
     next
   end
+  dataset.tags.gsub(/\,\s/,",").gsub(/\s/,"-").split(",").each do |tag|
+    if tag.length > 25
+      long_tags += 1
+      taglengthflag = true
+      fix_listings << [dataset.id, "Tag too long: #{tag}"].join("\t") + "\n"
+    end
+  end
+  next if taglengthflag
   if dataset.title.length > 100
     long_title += 1
     fix_listings << [dataset.id, "Title too long: #{dataset.title}"].join("\t") + "\n"
     next
   end
-  data_yaml = DatasetYAML.new(:title => dataset.title, :subtitle => "from Data.gov.uk", :main_link => dataset.url.gsub(/\!/,"%21"), :description => dataset.description, :tags => dataset.tags,
+  data_yaml = DatasetYAML.new(:title => dataset.title, :subtitle => "from Data.gov.uk", :main_link => dataset.url, :description => dataset.description, :tags => dataset.tags,
     :owner => "Infochimps", :protected => "true", :collection => "Data.gov.uk")
   data_yaml.sources = ["Data.gov.uk"]
 #  sources += [dataset.author] if !(sources.include?(dataset.author))
@@ -68,5 +86,5 @@ fix_listings << "Long title count: #{long_title}\nNo url count: #{no_url}\nNo ta
 #collection_yaml = File.open("data.gov.uk_collection.yaml","w")
 #collection_yaml << collection.to_yaml
 
-data_yaml = File.open("data.gov.uk_datasets.yaml","w")
+data_yaml = File.open(YAML_DIR + "data.gov.uk_datasets.yaml","w")
 data_yaml << all_datasets.to_yaml
