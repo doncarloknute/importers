@@ -19,12 +19,12 @@
 
 TRUNCATE TABLE locations;
 ALTER TABLE locations DISABLE KEYS;
-LOAD DATA INFILE '/Users/doncarlo/ics/Infochimps/importers/geoip_ripd//GeoLiteCity-Location.csv' 
+LOAD DATA INFILE '/Users/doncarlo/ics/Infochimps/IPCensus/geoip_ripd//GeoLiteCity-Location.csv' 
    INTO TABLE locations
    FIELDS TERMINATED BY "," ENCLOSED BY '"'
    IGNORE 2 LINES
    (id, country_code, region_code, city, postal_code, latitude, longitude, metro_code, area_code)
-;
-SELECT COUNT(*), NOW(), 'locations', 'done load, enabling indexes' FROM locations ;
+   SET zip5=CAST(postal_code AS UNSIGNED INTEGER);
+SELECT COUNT(*), NOW(), 'locations', 'done load, enabling indexes' FROM locations;
 ALTER TABLE locations ENABLE KEYS;
-SELECT COUNT(*), NOW(), 'locations', 'done import' FROM locations ;
+SELECT COUNT(*), NOW(), 'locations', 'done import' FROM locations

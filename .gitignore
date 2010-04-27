@@ -4,3 +4,5 @@ ripd
 work
 geoip_ripd
 news_endorse
+*.tsv
+Delicious/del_data
